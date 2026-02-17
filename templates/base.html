@@ -326,7 +326,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'dashboard' %}"><i class="fa-solid fa-gauge-high me-2 w-20"></i> Dashboard</a></li>
-                                {% comment %} <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user-gear me-2 w-20"></i> Profile Settings</a></li> {% endcomment %}
+                                <li><a class="dropdown-item" href="{% url 'profile_update' %}"><i class="fa-solid fa-user-gear me-2 w-20"></i> Profile Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{% url 'logout' %}" method="post" class="w-100">

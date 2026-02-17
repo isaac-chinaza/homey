@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}{{ property.name }} - Homey{% endblock %}
 
@@ -64,7 +65,7 @@
                             <tr>
                                 <td class="fw-semibold">{{ unit.unit_number }}</td>
                                 <td>{{ unit.bedrooms }}bd / {{ unit.bathrooms }}ba</td>
-                                <td>₦{{ unit.rent_amount }}</td>
+                                <td>₦{{ unit.rent_amount|floatformat:0|intcomma }}</td>
                                 <td>
                                     {% if unit.is_occupied %}
                                         <span class="badge bg-success bg-opacity-10 text-success">Occupied</span>

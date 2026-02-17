@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
-from .forms import UserRegistrationForm
+from django.contrib.auth.decorators import login_required
+from .forms import UserRegistrationForm, UserProfileUpdateForm
 
 
 
@@ -60,3 +61,17 @@ def logout_view(request):
     
     # If GET request, redirect to dashboard
     return redirect('dashboard')
+
+
+@login_required
+def profile_update(request):
+    user = request.user
+    if request.method == "POST":
+        form = UserProfileUpdateForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect("profile_update")
+    else:
+        form = UserProfileUpdateForm(instance=user)
+    return render(request, "accounts/profile_update.html", {"form": form})

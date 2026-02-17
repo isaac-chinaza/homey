@@ -29,3 +29,30 @@ class UserRegistrationForm(UserCreationForm):
             "class": "form-control"
         })
 
+
+class UserProfileUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "First name"})
+    )
+    last_name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Last name"})
+    )
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "Email address"})
+    )
+    phone_number = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Phone number"})
+    )
+    profile_picture = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"class": "form-control"})
+    )
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email", "phone_number", "profile_picture"]
+
