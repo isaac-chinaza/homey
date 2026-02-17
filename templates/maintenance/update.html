@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Maintenance Status{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mt-3">
+      <div class="card-header">Update Status</div>
+      <div class="card-body">
+        <p><strong>{{ request_obj.title }}</strong></p>
+        <p>Current status: {{ request_obj.get_status_display }}</p>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status">
+              {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if value == request_obj.status %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

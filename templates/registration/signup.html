@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Homey{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mt-5">
+      <div class="mt-4 mb-3 text-center">
+        <h4>Create Account</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+         <div class="row mb-4">
+            <div class="col-md-12 text-center">
+              
+              <!-- Preview -->
+              <img
+                id="profilePreview"
+                src="https://i.pinimg.com/1200x/83/bc/8b/83bc8b88cf6bc4b4e04d153a418cde62.jpg"
+                class="rounded-circle mb-3"
+                style="width:120px;height:120px;object-fit:cover;cursor:pointer;"
+                alt="Profile preview"
+                onclick="document.getElementById('id_profile_picture').click();"
+              />
+
+              <!-- File input (hidden but functional) -->
+              <div class="d-none">
+                {{ form.profile_picture }}
+              </div>
+
+              <small class="d-block text-muted">
+                Click image to upload profile picture
+              </small>
+
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              {{ form.username }}
+            </div>
+
+            <div class="col-md-6">
+              {{ form.email }}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+           <div class="col-md-6">
+            {{ form.role }}
+           </div>
+   
+           <div class="col-md-6">
+            {{ form.phone_number }}
+           </div>
+          </div>
+       
+          <div class="row mb-3">
+            <div class="col-md-12">
+                
+                <div class="form-group password-wrapper" style="position: relative;">
+                    <input type="password" class="form-control" id="password" name="password1" placeholder="Password" required>
+                    <span class="toggle-password" data-target="password" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;"><i class="fa-solid fa-eye-slash"></i></span>
+                    <span id="password-error" class="error" style="color: red; display: none;"></span>
+                </div>
+            </div>
+            <div class="col-md-6 " style="position: relative; display:none;">
+               <div class="form-group password-wrapper" >
+                    <input type="password" id="password2" name="password2" placeholder="Confirm Password" required>
+                    <span class="toggle-password" data-target="password2" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;"><i class="fa-solid fa-eye-slash"></i></span>
+                    <span id="password2-error" class="error" style="color: red; display: none;"></span>
+                </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.querySelectorAll(".toggle-password").forEach(toggle => {
+        toggle.addEventListener("click", function () {
+            const input = document.getElementById(this.dataset.target);
+            const icon = this.querySelector("i");
+    
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            }
+        });
+    });
+        // Auto-sync password1 to password2
+    const password1 = document.getElementById("password");
+    const password2 = document.getElementById("password2");
+
+    password1.addEventListener("input", () => {
+        password2.value = password1.value;
+    });
+        
+</script>
+<script>
+  const input = document.getElementById("id_profile_picture");
+  const preview = document.getElementById("profilePreview");
+
+  input.addEventListener("change", function () {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        preview.src = e.target.result;
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+</script>
+
+{% endblock %}

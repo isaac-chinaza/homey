@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Pay Rent - Homey{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-3">
+                <h4 class="fw-bold">Pay Rent</h4>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <div class="icon-wrapper mx-auto mb-3" style="width: 64px; height: 64px; background-color: #f3f4f6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <svg style="width: 32px; height: 32px; color: #4b5563;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                    </div>
+                    {% if tenant.unit %}
+                        <h2 class="fw-bold text-primary mb-1">₦{{ tenant.unit.rent_amount|floatformat:0|intcomma }}</h2>
+                        <p class="text-muted">Monthly Rent due</p>
+                    {% else %}
+                        <h2 class="fw-bold text-primary mb-1">--</h2>
+                        <p class="text-muted">Rent amount not set</p>
+                    {% endif %}
+                </div>
+
+                <div class="alert alert-info border-0 d-flex align-items-center" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                    <div>
+                        Online payments are currently disabled. Please contact your property manager for payment instructions (Bank Transfer/Cash).
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-dark rounded-pill">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

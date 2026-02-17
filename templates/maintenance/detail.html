@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Request #{{ request_obj.id }} - Homey{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold mb-1">{{ request_obj.title }}</h4>
+                    <span class="text-muted">#{{ request_obj.id }}</span>
+                </div>
+                <span class="badge 
+                    {% if request_obj.status == 'completed' %}bg-success
+                    {% elif request_obj.status == 'in_progress' %}bg-primary
+                    {% elif request_obj.status == 'pending' %}bg-warning text-dark
+                    {% else %}bg-secondary{% endif %}">
+                    {{ request_obj.get_status_display }}
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold">Property</h6>
+                        <p class="fw-semibold">{{ request_obj.property.name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold">Reported By</h6>
+                        <p class="fw-semibold">{{ request_obj.tenant.first_name }} {{ request_obj.tenant.last_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold">Date Reported</h6>
+                        <p class="fw-semibold">{{ request_obj.created_at|date:"M d, Y g:i A" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold">Priority</h6>
+                        <p class="fw-semibold text-capitalize">{{ request_obj.priority }}</p>
+                    </div>
+                </div>
+
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">Description</h6>
+                <div class="bg-light p-3 rounded mb-4">
+                    {{ request_obj.description|linebreaks }}
+                </div>
+
+                {% if request_obj.photo %}
+                    <h6 class="text-muted text-uppercase small fw-bold mb-2">Attached Photo</h6>
+                    <div class="mb-4">
+                        <img src="{{ request_obj.photo.url }}" class="img-fluid rounded" alt="Issue photo" style="max-height: 400px;">
+                    </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                    <a href="{% url 'dashboard' %}" class="btn btn-light">Back to Dashboard</a>
+                    {% if user.role == 'manager' or user.role == 'owner' %}
+                        <a href="{% url 'update_request_status' request_obj.pk %}" class="btn btn-primary">Update Status</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

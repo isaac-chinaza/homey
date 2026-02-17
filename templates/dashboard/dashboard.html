@@ -1,0 +1,782 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}
+    {% if dashboard_type == 'owner' %}Owner Dashboard
+    {% elif dashboard_type == 'manager' %}Manager Dashboard
+    {% elif dashboard_type == 'tenant' %}Tenant Dashboard
+    {% else %}Dashboard{% endif %} - Homey
+{% endblock %}
+
+{% block header %}
+    {% if dashboard_type == 'owner' %}
+        Property Owner Dashboard
+    {% elif dashboard_type == 'manager' %}
+        Property Manager Dashboard
+    {% elif dashboard_type == 'tenant' %}
+        My Tenant Portal
+    {% else %}
+        Dashboard
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .animate-fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .animate-delay-1 { animation-delay: 0.1s; }
+    .animate-delay-2 { animation-delay: 0.2s; }
+    .animate-delay-3 { animation-delay: 0.3s; }
+
+    /* Gradient Cards */
+    .gradient-card {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .gradient-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        filter: blur(60px);
+        transition: transform 0.5s ease;
+    }
+
+    .gradient-card:hover::before {
+        transform: scale(1.5);
+    }
+
+
+
+    .gradient-blue {
+        --gradient-start: #3b82f6;
+        --gradient-end: #2563eb;
+    }
+
+    .gradient-green {
+        --gradient-start: #10b981;
+        --gradient-end: #059669;
+    }
+
+    .gradient-orange {
+        --gradient-start: #f59e0b;
+        --gradient-end: #d97706;
+    }
+
+    .gradient-purple {
+        --gradient-start: #8b5cf6;
+        --gradient-end: #7c3aed;
+    }
+
+    .gradient-indigo {
+        --gradient-start: #6366f1;
+        --gradient-end: #4f46e5;
+    }
+
+    /* Icon Containers */
+    .icon-wrapper {
+        width: 56px;
+        height: 56px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-wrapper svg {
+        width: 28px;
+        height: 28px;
+        color: white;
+    }
+
+    /* Modern Table Styles */
+    .modern-table {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .modern-table thead {
+        background: #f8f9fa;
+    }
+
+    .modern-table thead th {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6c757d;
+        border-bottom: 2px solid #e9ecef;
+        padding: 1rem 1.5rem;
+    }
+
+    .modern-table tbody tr {
+        transition: background-color 0.2s ease;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .modern-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .modern-table tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+    }
+
+    /* Property Avatar */
+    .property-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.75rem;
+        object-fit: cover;
+    }
+
+    .property-avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    /* Badge Styles */
+    .badge-status {
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* Action Buttons */
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 0.5rem;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        background: transparent;
+        color: #6c757d;
+    }
+
+    .action-btn:hover {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .action-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 3rem 1rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #f8f9fa;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-icon svg {
+        width: 32px;
+        height: 32px;
+        color: #adb5bd;
+    }
+
+    /* Quick Action Cards */
+    .quick-action-btn {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+        border: none;
+        background: #f8f9fa;
+        color: #212529;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .quick-action-btn:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .quick-action-btn svg {
+        width: 20px;
+        height: 20px;
+        color: #6c757d;
+    }
+
+    /* Maintenance Request Card */
+    .maintenance-card {
+        border: 1px solid #e9ecef;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .maintenance-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+
+    /* Stat Number Animation */
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    /* Lease Info Card */
+    .lease-header {
+        background: #2563eb;
+        color: white;
+        padding: 2rem 1.5rem;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .lease-body {
+        padding: 1.5rem;
+    }
+
+    .lease-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.875rem 0;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .lease-info-row:last-child {
+        border-bottom: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .gradient-card {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if dashboard_type == 'owner' %}
+    <!-- Owner Dashboard -->
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4 animate-fade-in">
+            <div class="card gradient-card gradient-blue text-white h-100">
+                <div class="card-body position-relative" style="z-index: 1;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="icon-wrapper">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <small class="text-white-50">+12% this month</small>
+                    </div>
+                    <h6 class="text-white-50 mb-2" style="font-size: 0.875rem;">Total Properties</h6>
+                    <div class="stat-number" data-target="{{ total_properties }}">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4 animate-fade-in animate-delay-1">
+            <div class="card gradient-card gradient-green text-white h-100">
+                <div class="card-body position-relative" style="z-index: 1;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="icon-wrapper">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <small class="text-white-50">{{ active_tenants }} Active</small>
+                    </div>
+                    <h6 class="text-white-50 mb-2" style="font-size: 0.875rem;">Active Tenants</h6>
+                    <div class="stat-number" data-target="{{ active_tenants }}">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4 animate-fade-in animate-delay-2">
+            <div class="card gradient-card gradient-orange text-white h-100">
+                <div class="card-body position-relative" style="z-index: 1;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="icon-wrapper">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <small class="text-white-50">Needs Attention</small>
+                    </div>
+                    <h6 class="text-white-50 mb-2" style="font-size: 0.875rem;">Pending Maintenance</h6>
+                    <div class="stat-number" data-target="{{ pending_maintenance }}">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Properties Table -->
+    <div class="card modern-table border-0 animate-fade-in animate-delay-3">
+        <div class="card-header bg-white border-0 pt-4 pb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1 fw-bold">Your Properties</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.875rem;">Manage and monitor all your properties</p>
+                </div>
+                <a href="{% url 'property_create' %}" class="btn btn-dark rounded-pill px-4" >
+                    <svg class="me-2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span style="font-size: 14px;">Add Property</span>
+                </a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Address</th>
+                        <th>Units</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for property in properties %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if property.image %}
+                                        <img src="{{ property.image.url }}" alt="{{ property.name }}" class="property-avatar">
+                                    {% else %}
+                                        <div class="property-avatar-placeholder">
+                                            {{ property.name|slice:":2"|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-semibold mb-0" style="font-size: 0.875rem;">{{ property.name }}</div>
+                                        <small class="text-muted">{{ property.get_property_type_display }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-muted" style="font-size: 0.875rem;">{{ property.address|truncatewords:8 }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">{{ property.number_of_units }}</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-status
+                                    {% if property.status == 'available' %}bg-success bg-opacity-10 text-success
+                                    {% elif property.status == 'occupied' %}bg-primary bg-opacity-10 text-primary
+                                    {% else %}bg-warning bg-opacity-10 text-warning{% endif %}">
+                                    {{ property.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'property_detail' property.pk %}" class="action-btn" title="View">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{% url 'property_update' property.pk %}" class="action-btn" title="Edit">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                        </svg>
+                                    </div>
+                                    <h6 class="fw-semibold mb-1">No properties found</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.875rem;">Get started by adding your first property</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% elif dashboard_type == 'manager' %}
+    <!-- Manager Dashboard -->
+    
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-12 col-lg-4">
+            <!-- Quick Stats -->
+            <div class="card gradient-card gradient-purple text-white mb-4">
+                <div class="card-body position-relative" style="z-index: 1;">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-wrapper">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h6 class="mb-0">Pending Requests</h6>
+                    </div>
+                    <div class="stat-number" data-target="{{ maintenance_requests.count }}">0</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-4">Quick Actions</h6>
+                    <div class="d-grid gap-3">
+                        <button class="quick-action-btn">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Generate Report
+                        </button>
+                        <button class="quick-action-btn">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            Schedule Inspection
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-12 col-lg-8">
+            <div class="card modern-table border-0">
+                <div class="card-header bg-white border-0 pt-4 pb-3">
+                    <h5 class="mb-1 fw-bold">Pending Maintenance Requests</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.875rem;">Review and manage maintenance tasks</p>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Request</th>
+                                <th>Property</th>
+                                <th>Priority</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in maintenance_requests %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold mb-0" style="font-size: 0.875rem;">{{ req.title }}</div>
+                                        <small class="text-muted">by {{ req.tenant.first_name }} {{ req.tenant.last_name }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted" style="font-size: 0.875rem;">{{ req.property.name }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-status
+                                            {% if req.priority == 'high' %}bg-danger bg-opacity-10 text-danger
+                                            {% elif req.priority == 'medium' %}bg-warning bg-opacity-10 text-warning
+                                            {% else %}bg-info bg-opacity-10 text-info{% endif %}">
+                                            {{ req.get_priority_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'maintenance_detail' req.pk %}" class="btn btn-sm btn-dark rounded-pill px-3">View Details</a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon" style="background: #d1fae5;">
+                                                <svg style="color: #10b981;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                            <h6 class="fw-semibold mb-1">All caught up!</h6>
+                                            <p class="text-muted mb-0" style="font-size: 0.875rem;">No pending maintenance requests</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% elif dashboard_type == 'tenant' %}
+    <!-- Tenant Dashboard -->
+    
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-12 col-lg-4">
+            <!-- Lease Info -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="lease-header">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-wrapper">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                        </div>
+                        <h6 class="mb-0">My Residence</h6>
+                    </div>
+                    {% if tenant.property %}
+                        <h4 class="fw-bold mb-1">{{ tenant.property.name }}</h4>
+                        <p class="mb-0 opacity-75" style="font-size: 0.875rem;">Unit {{ tenant.unit.unit_number|default:"N/A" }}</p>
+                    {% else %}
+                        <p class="mb-0 opacity-90">No active lease</p>
+                    {% endif %}
+                </div>
+                
+                {% if tenant.property %}
+                    <div class="lease-body">
+                        <div class="lease-info-row">
+                            <span class="text-muted" style="font-size: 0.875rem;">Lease Start</span>
+                            <span class="fw-semibold" style="font-size: 0.875rem;">{{ tenant.lease_start_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="lease-info-row">
+                            <span class="text-muted" style="font-size: 0.875rem;">Lease End</span>
+                            <span class="fw-semibold" style="font-size: 0.875rem;">{{ tenant.lease_end_date|date:"M d, Y" }}</span>
+                        </div>
+                        {% if tenant.unit %}
+                            <div class="lease-info-row">
+                                <span class="text-muted" style="font-size: 0.875rem;">Monthly Rent</span>
+                                <span class="fw-semibold" style="font-size: 0.875rem;">₦{{ tenant.unit.rent_amount|floatformat:0|intcomma }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-4">Quick Actions</h6>
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'maintenance_new' %}" class="btn btn-dark rounded-pill d-flex align-items-center justify-content-center gap-2">
+                            <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            New Maintenance Request
+                        </a>
+                        <a href="{% url 'pay_rent' %}" class="quick-action-btn text-decoration-none">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                            </svg>
+                            Pay Rent
+                        </a>
+                        <a href="{% url 'contact_manager' %}" class="quick-action-btn text-decoration-none">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                            </svg>
+                            Contact Manager
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 pb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1 fw-bold">My Maintenance Requests</h5>
+                            <p class="text-muted mb-0" style="font-size: 0.875rem;">Track the status of your requests</p>
+                        </div>
+                        <a href="{% url 'maintenance_new' %}" class="btn btn-dark rounded-pill px-4 " style="font-size: 14px;">+ New Request</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if maintenance_requests %}
+                        <div class="d-grid gap-3">
+                            {% for req in maintenance_requests %}
+                                <div class="maintenance-card">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-semibold mb-1">{{ req.title }}</h6>
+                                            <small class="text-muted">{{ req.created_at|date:"M d, Y - g:i A" }}</small>
+                                        </div>
+                                        <span class="badge badge-status
+                                            {% if req.status == 'completed' %}bg-success bg-opacity-10 text-success
+                                            {% elif req.status == 'in_progress' %}bg-primary bg-opacity-10 text-primary
+                                            {% elif req.status == 'pending' %}bg-warning bg-opacity-10 text-warning
+                                            {% else %}bg-secondary bg-opacity-10 text-secondary{% endif %}">
+                                            {{ req.get_status_display }}
+                                        </span>
+                                    </div>
+                                    {% if req.description %}
+                                        <p class="text-muted mb-3" style="font-size: 0.875rem;">{{ req.description|truncatewords:20 }}</p>
+                                    {% endif %}
+                                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                        <span class="badge badge-status
+                                            {% if req.priority == 'high' %}bg-danger bg-opacity-10 text-danger
+                                            {% elif req.priority == 'medium' %}bg-warning bg-opacity-10 text-warning
+                                            {% else %}bg-info bg-opacity-10 text-info{% endif %}">
+                                            {{ req.get_priority_display }} Priority
+                                        </span>
+                                        <a href="{% url 'maintenance_detail' req.pk %}" class="text-decoration-none fw-semibold" style="font-size: 0.875rem;">
+                                            View Details →
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <h6 class="fw-semibold mb-1">No maintenance requests</h6>
+                            <p class="text-muted mb-0" style="font-size: 0.875rem;">Submit a request if you need any repairs or assistance</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% elif dashboard_type == 'admin' %}
+    <!-- Admin Dashboard -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card gradient-card" style="--gradient-start: #1f2937; --gradient-end: #111827; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                <div class="card-body text-white text-center p-5 position-relative" style="z-index: 1;">
+                    <div class="icon-wrapper mx-auto mb-4" style="width: 80px; height: 80px;">
+                        <svg style="width: 40px; height: 40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                        </svg>
+                    </div>
+                    <h2 class="fw-bold mb-3">Admin Dashboard</h2>
+                    <p class="mb-4 opacity-75">Manage your property management system</p>
+                    <a href="/admin/" class="btn btn-light btn-lg rounded-pill px-5 fw-bold">Open Admin Panel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <!-- Default/No Role -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-5">
+                    <div class="empty-state-icon mx-auto" style="background: #fef3c7; width: 80px; height: 80px;">
+                        <svg style="width: 40px; height: 40px; color: #f59e0b;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <h4 class="fw-bold mb-3 mt-4">Role Assignment Pending</h4>
+                    <p class="text-muted mb-4">Please contact your administrator to assign you a role in the system.</p>
+                    <button class="btn btn-dark rounded-pill px-4">Contact Support</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate stat numbers
+    function animateValue(element, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            element.textContent = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        // Animate all stat numbers
+        document.querySelectorAll('.stat-number').forEach(el => {
+            const target = parseInt(el.getAttribute('data-target') || el.textContent);
+            if (!isNaN(target)) {
+                animateValue(el, 0, target, 1200);
+            }
+        });
+    });
+</script>
+{% endblock %}

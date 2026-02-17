@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Homey - Property Management{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* ============================================
+           GLOBAL STYLES & RESET
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Monochrome palette */
+            --text-primary: #0f0f0f;
+            --text-secondary: #333333;
+            --text-muted:   #6b7280;
+            --bg-primary:   #ffffff;
+            --bg-secondary: #f8f9fa;
+            --border:       #d1d5db;
+            --hover-bg:     #e5e7eb;
+            --active-bg:    #cbd5e1;
+
+            /* Spacing */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+
+            /* Typography */
+            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-size-base: 16px;
+            --line-height-base: 1.6;
+
+            /* Transitions */
+            --transition: 180ms ease;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-base);
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+            padding-top: 72px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============================================
+           NAVIGATION BAR
+           ============================================ */
+        .navbar {
+            background-color: var(--bg-primary) !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            height: 72px;
+            padding: var(--spacing-sm) 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-primary) !important;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-link {
+            
+            font-weight: 500;
+            font-size: 0.9375rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+
+        .nav-link.active {
+            color: var(--text-primary) !important;
+            font-weight: 600;
+            background-color: var(--active-bg);
+        }
+
+        /* Auth section */
+        .auth-item .nav-link {
+            font-weight: 500;
+        }
+
+        .user-welcome {
+            color: var(--text-muted) !important;
+            pointer-events: none;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .logout-form {
+            margin: 0;
+        }
+
+        .logout-form button {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logout-form button:hover {
+            color: #991b1b !important;
+            background-color: #fee2e2;
+        }
+
+        /* ============================================
+           BUTTONS – clean monochrome style
+           ============================================ */
+        .btn {
+            font-weight: 600;
+            padding: 0.625rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            transition: var(--transition);
+            border: none;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-primary {
+            background-color: var(--text-primary);
+            color: white;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus-visible {
+            background-color: #1a1a1a;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover,
+        .btn-secondary:focus-visible {
+            background-color: white;
+            border-color: #9ca3af;
+            color: var(--text-primary);
+        }
+
+        /* Keep outline variant if needed elsewhere */
+        .btn-outline-primary {
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--text-primary);
+            color: white;
+        }
+
+        /* ============================================
+           CARDS, FORMS, TABLES, etc.
+           ============================================ */
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .form-control,
+        .form-select {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.625rem 0.875rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #4b5563;
+            box-shadow: 0 0 0 3px rgba(75,85,99,0.15);
+            outline: none;
+        }
+
+        .table thead th {
+            background-color: #f1f5f9;
+            color: #374151;
+            text-transform: uppercase;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* ============================================
+           MAIN LAYOUT
+           ============================================ */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-lg) var(--spacing-md);
+        }
+
+        .page-header {
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            body { padding-top: 64px; }
+            .navbar { height: 64px; }
+            .navbar-brand { font-size: 1.375rem; }
+            .main-content { padding: 1.5rem 1rem; }
+        }
+        .dropdown-toggle.hide-arrow::after {
+            display: none;
+        }
+        
+        .notification-badge {
+            font-size: 0.65rem;
+            padding: 0.25em 0.4em;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-md fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'dashboard' %}">Homey</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                
+
+                <ul class="navbar-nav ms-auto mb-2 mb-md-0 align-items-md-center">
+                    {% if user.is_authenticated %}
+                        <!-- Notifications Dropdown -->
+                        <li class="nav-item dropdown me-3">
+                            <a class="nav-link dropdown-toggle hide-arrow position-relative" href="#" id="navbarDropdownNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-bell fa-lg"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                                        {{ unread_notifications_count }}
+                                        <span class="visually-hidden">unread notifications</span>
+                                    </span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdownNotifications" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                                <li><h6 class="dropdown-header d-flex justify-content-between align-items-center">
+                                    Notifications
+                                    {% if unread_notifications_count > 0 %}
+                                        <span class="badge bg-primary rounded-pill">{{ unread_notifications_count }} New</span>
+                                    {% endif %}
+                                </h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% if recent_notifications %}
+                                    {% for notification in recent_notifications %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% if notification.link %}{{ notification.link }}{% else %}#{% endif %}" style="white-space: normal;">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <strong class="mb-1 small text-truncate" style="max-width: 150px;">{{ notification.message|truncatewords:5 }}</strong>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">{{ notification.created_at|timesince }} ago</small>
+                                                </div>
+                                                <p class="mb-1 small text-secondary">{{ notification.message|truncatechars:60 }}</p>
+                                                {% if not notification.is_read %}
+                                                    <small class="text-primary fw-bold">New</small>
+                                                {% endif %}
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    {% endfor %}
+                                    <li><a class="dropdown-item text-center small text-primary fw-bold" href="{% url 'notification_list' %}">View All Notifications</a></li>
+                                {% else %}
+                                    <li><span class="dropdown-item text-muted text-center py-3">No notifications</span></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+                        <!-- Profile Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownProfile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="rounded-circle me-2 border" width="32" height="32" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                                        {{ user.get_full_name|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="d-none d-md-inline fw-medium">{{ user.get_full_name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdownProfile">
+                                <li>
+                                    <div class="px-3 py-2">
+                                        <div class="fw-bold text-dark">{{ user.get_full_name }}</div>
+                                        <div class="small text-muted">{{ user.email }}</div>
+                                        <div class="small badge bg-info mt-1">{{ user.get_role_display }}</div>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'dashboard' %}"><i class="fa-solid fa-gauge-high me-2 w-20"></i> Dashboard</a></li>
+                                {% comment %} <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user-gear me-2 w-20"></i> Profile Settings</a></li> {% endcomment %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post" class="w-100">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fa-solid fa-arrow-right-from-bracket me-2 w-20"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-secondary me-2" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-primary text-white" href="{% url 'signup' %}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content" class="main-content">
+        {% comment %} <div class="page-header">
+            <h1>{% block header %}Dashboard{% endblock %}</h1>
+        </div> {% endcomment %}
+
+        {% comment %} {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %} {% endcomment %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
