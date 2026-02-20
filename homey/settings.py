@@ -9,7 +9,7 @@ SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["https://homey-fqn5.onrender.com", "127.0.0.1"]
 
 
 INSTALLED_APPS = [
@@ -123,46 +123,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL="accounts.User"
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = '/account/login/'
+LOGOUT_REDIRECT_URL = '/account/login/' 
 
 REDIS_URL = config("REDIS_URL")
 
-if REDIS_URL:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": REDIS_URL,
-        }
-    }
-    # Channels layer config (supports rediss by toggling ssl when scheme includes 'rediss')
-    from urllib.parse import urlparse
-    _redis = urlparse(REDIS_URL)
-    _ssl = _redis.scheme.startswith("rediss")
-    _password = _redis.password
-    _host = _redis.hostname
-    _port = _redis.port or 6379
-
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {
-                "hosts": [{
-                    "address": (_host, _port),
-                    "password": _password,
-                    "ssl": _ssl,
-                }]
-            },
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [{
+                "address": REDIS_URL,
+                "retry_on_timeout": True,
+                "max_connections": 5,  # Low to avoid Upstash limits
+               
+                # "ssl_cert_reqs": "required" if redis_url.startswith("rediss://") else None,  # Enforce SSL
+            }],
+            
         },
-    }
-else:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "homey-default",
-        }
-    }
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels.layers.InMemoryChannelLayer",
-        }
-    }
+    },
+}

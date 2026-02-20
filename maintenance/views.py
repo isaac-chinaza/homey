@@ -23,14 +23,21 @@ def request_detail(request, pk):
     return render(request, 'maintenance/detail.html', {'request_obj': req})
 
 
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def create_request(request):
     if request.method == "POST":
         form = MaintenanceRequestForm(request.POST, request.FILES)
         if form.is_valid():
             maintenance_request = form.save(commit=False)
 
-            # Example: attach property from logged-in user's property
-            maintenance_request.property = maintenance_request.unit.property  
+            # Attach logged-in user as tenant
+            maintenance_request.tenant = request.user
+
+            # Attach property from selected unit (if exists)
+            if maintenance_request.unit:
+                maintenance_request.property = maintenance_request.unit.property
 
             maintenance_request.save()
             return redirect('dashboard')
