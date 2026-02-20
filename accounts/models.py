@@ -2,6 +2,16 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 import cloudinary
 from cloudinary.models import CloudinaryField
+from decouple import config
+
+
+
+cloudinary.config( 
+    cloud_name = config("CLOUDINARY_CLOUD_NAME"), 
+    api_key = config("CLOUDINARY_API_KEY"), 
+    api_secret = config("CLOUDINARY_API_SECRET"), # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
 
 class UserManager(BaseUserManager):
 

@@ -1,6 +1,17 @@
 from django.db import models
+import cloudinary
+from cloudinary.models import CloudinaryField
 from accounts.models import User
 from properties.models import Property, Unit
+from decouple import config
+
+
+cloudinary.config( 
+    cloud_name = config("CLOUDINARY_CLOUD_NAME"), 
+    api_key = config("CLOUDINARY_API_KEY"), 
+    api_secret = config("CLOUDINARY_API_SECRET"), # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
 
 class MaintenanceRequest(models.Model):
     PRIORITY_CHOICES = (
@@ -22,7 +33,7 @@ class MaintenanceRequest(models.Model):
     description = models.TextField()
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    photo = models.ImageField(upload_to='maintenance_photos/', blank=True, null=True)
+    photo = CloudinaryField('image', folder='maintenance_photos', null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

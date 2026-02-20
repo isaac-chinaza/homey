@@ -1,6 +1,17 @@
 from accounts.models import User
 from django.db import models
+import cloudinary
+from cloudinary.models import CloudinaryField
+from decouple import config
 
+
+
+cloudinary.config( 
+    cloud_name = config("CLOUDINARY_CLOUD_NAME"), 
+    api_key = config("CLOUDINARY_API_KEY"), 
+    api_secret = config("CLOUDINARY_API_SECRET"), # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
 
 class Property(models.Model):
     PROPERTY_TYPES = (
@@ -23,7 +34,7 @@ class Property(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_properties', limit_choices_to={'role': 'owner'})
     manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_properties', limit_choices_to={'role': 'manager'})
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='property_images/', blank=True, null=True)
+    image = CloudinaryField('image', folder='property_images', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
