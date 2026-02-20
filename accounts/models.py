@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+import cloudinary
+from cloudinary.models import CloudinaryField
 
 class UserManager(BaseUserManager):
 
@@ -34,7 +36,7 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='tenant')
     phone_number = models.CharField(max_length=15, blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_picture = CloudinaryField('image', folder='profile_pics', null=True, blank=True)
     USERNAME_FIELD = "email"
     objects = UserManager()
     REQUIRED_FIELDS = ["first_name", "last_name", "role"]
@@ -62,4 +64,3 @@ class User(AbstractUser):
     @property
     def is_tenant(self):
         return self.role == 'tenant'
-
