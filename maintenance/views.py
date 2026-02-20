@@ -22,15 +22,23 @@ def request_detail(request, pk):
 
     return render(request, 'maintenance/detail.html', {'request_obj': req})
 
+
 def create_request(request):
-    if request.method == 'POST':
-        form = MaintenanceRequestForm(request.POST)
+    if request.method == "POST":
+        form = MaintenanceRequestForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            maintenance_request = form.save(commit=False)
+
+            # Example: attach property from logged-in user's property
+            maintenance_request.property = maintenance_request.unit.property  
+
+            maintenance_request.save()
             return redirect('dashboard')
     else:
         form = MaintenanceRequestForm()
-    return render(request, 'maintenance/create.html', {'form': form})
+
+    return render(request, "maintenance/create.html", {"form": form})
+
 
 
 def update_request_status(request, pk):
