@@ -5,11 +5,11 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = 'django-insecure-a9@4d4@_@l^30@$iqb7*&pa$w4l0-)8ag1tuacx)*)4gob-c=$'
+SECRET_KEY = config("SECRET_KEY")
 
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 INSTALLED_APPS = [
