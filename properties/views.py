@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from accounts.decorators import role_required
 from .models import Property, Unit
 from .forms import PropertyForm, UnitForm
+from accounts.models import User
 
 @login_required
 @role_required(['owner', 'manager'])
@@ -44,14 +45,20 @@ def property_detail(request, pk):
 @role_required(['owner'])
 def property_update(request, pk):
     property_obj = get_object_or_404(Property, pk=pk, owner=request.user)
+
     if request.method == 'POST':
-        form = PropertyForm(request.POST, request.FILES, instance=property_obj)
+        form = PropertyForm(request.POST, request.FILES, instance=property_obj, user=request.user)
         if form.is_valid():
             form.save()
             return redirect('property_detail', pk=pk)
     else:
-        form = PropertyForm(instance=property_obj)
-    return render(request, 'properties/property_form.html', {'form': form, 'title': 'Edit Property'})
+        form = PropertyForm(instance=property_obj, user=request.user)
+
+    return render(request, 'properties/property_form.html', {
+        'form': form,
+        'title': 'Edit Property'
+    })
+
 
 @login_required
 @role_required(['owner', 'manager'])

@@ -1,5 +1,6 @@
 from django import forms
 from .models import Property, Unit
+from accounts.models import User
 
 class PropertyForm(forms.ModelForm):
     class Meta:
@@ -14,6 +15,12 @@ class PropertyForm(forms.ModelForm):
             'image': forms.FileInput(attrs={'class': 'form-control'}),
             'manager': forms.Select(attrs={'class': 'form-select'}),
         }
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        # Restrict managers (VERY important for security)
+        self.fields['manager'].queryset = User.objects.filter(role='manager')
 
 class UnitForm(forms.ModelForm):
     class Meta:

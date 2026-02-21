@@ -1,3 +1,4 @@
+{% load time_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -248,7 +249,7 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-md fixed-top">
+    <nav class="navbar navbar-expand-md fixed-top" style="height: 70px">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'dashboard' %}">Homey</a>
 
@@ -287,7 +288,7 @@
                                             <a class="dropdown-item" href="{% if notification.link %}{{ notification.link }}{% else %}#{% endif %}" style="white-space: normal;">
                                                 <div class="d-flex w-100 justify-content-between">
                                                     <strong class="mb-1 small text-truncate" style="max-width: 150px;">{{ notification.message|truncatewords:5 }}</strong>
-                                                    <small class="text-muted" style="font-size: 0.75rem;">{{ notification.created_at|timesince }} ago</small>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">{{ notification.created_at|short_timesince }} ago</small>
                                                 </div>
                                                 <p class="mb-1 small text-secondary">{{ notification.message|truncatechars:60 }}</p>
                                                 {% if not notification.is_read %}

@@ -388,7 +388,7 @@
                     <svg class="me-2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    <span style="font-size: 14px;">Add Property</span>
+                    <span style="font-size: 14px;">Add <span class="d-none d-md-inline">Property</span></span>
                 </a>
             </div>
         </div>
@@ -550,7 +550,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{% url 'maintenance_detail' req.pk %}" class="btn btn-sm btn-dark rounded-pill px-3">View Details</a>
+                                        <a href="{% url 'maintenance_detail' req.pk %}" class="btn btn-sm btn-dark rounded-pill px-3">View <span class="d-none d-md-inline">Details</span></a>
                                     </td>
                                 </tr>
                             {% empty %}
@@ -583,18 +583,31 @@
         <div class="col-12 col-lg-4">
             <!-- Lease Info -->
             <div class="card border-0 shadow-sm mb-4">
-                <div class="lease-header">
+                <div class="lease-header position-relative text-white"
+                    style="
+                        {% if tenant.property and tenant.property.image %}
+                            background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+                                        url('{{ tenant.property.image.url }}') center/cover no-repeat;
+                        {% else %}
+                            background: linear-gradient(135deg, #1e3c72, #2a5298);
+                        {% endif %}
+                    ">
+
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="icon-wrapper">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                             </svg>
                         </div>
                         <h6 class="mb-0">My Residence</h6>
                     </div>
+
                     {% if tenant.property %}
                         <h4 class="fw-bold mb-1">{{ tenant.property.name }}</h4>
-                        <p class="mb-0 opacity-75" style="font-size: 0.875rem;">Unit {{ tenant.unit.unit_number|default:"N/A" }}</p>
+                        <p class="mb-0 opacity-75" style="font-size: 0.875rem;">
+                            Unit {{ tenant.unit.unit_number|default:"N/A" }}
+                        </p>
                     {% else %}
                         <p class="mb-0 opacity-90">No active lease</p>
                     {% endif %}
@@ -657,7 +670,7 @@
                             <h5 class="mb-1 fw-bold">My Maintenance Requests</h5>
                             <p class="text-muted mb-0" style="font-size: 0.875rem;">Track the status of your requests</p>
                         </div>
-                        <a href="{% url 'maintenance_new' %}" class="btn btn-dark rounded-pill px-4 " style="font-size: 14px;">+ New Request</a>
+                        <a href="{% url 'maintenance_new' %}" class="btn btn-dark rounded-pill px-4 " style="font-size: 14px;">+ New <span class="d-none d-md-inline">Request</span></a>
                     </div>
                 </div>
                 <div class="card-body">
