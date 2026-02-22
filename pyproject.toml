@@ -18,4 +18,5 @@ dependencies = [
     "channels-redis>=4.1.0",
     "daphne>=4.2.1",
     "python-decouple>=3.8",
+    "whitenoise>=6.11.0",
 ]
